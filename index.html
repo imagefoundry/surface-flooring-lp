@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CGI + AI for Surfaces &amp; Flooring | Image Foundry</title>
+<link rel="icon" href="https://www.imagefoundry.co.uk/lp/icon.png?icon.0gthssm1otftu.webp" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:      #000000;
+  --white:      #FFFFFF;
+  --teal:       #2A657D;
+  --off-white:  #F6F6F6;
+  --light-grey: #DBDBDB;
+  --mid-grey:   #B7B7B7;
+  --near-black: #212529;
+  --font: 'Barlow Condensed', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.outline {
+  -webkit-text-stroke: 2px var(--black);
+  -webkit-text-fill-color: transparent;
+}
+.outline-white {
+  -webkit-text-stroke: 2px var(--white);
+  -webkit-text-fill-color: transparent;
+}
+
+/* =====================
+   HEADER / STICKY-BAR (logo strip — always visible at top of hero)
+===================== */
+.site-header-bar {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  z-index: 3;
+  padding: 49px 0 2rem;
+  pointer-events: none;
+}
+
+.sticky-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5% 0 calc(4% + 1rem);
+}
+
+.sticky-bar .bi a { pointer-events: all; }
+
+.sticky-bar .bi img {
+  width: 150px;
+  height: 45.05px;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+/* =====================
+   SF TOP NAV (matches reference exactly)
+===================== */
+.sf {
+  position: fixed;
+  top: 49px;
+  right: 4%;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.sf-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0;
+  padding: 1rem 1rem 1rem 2rem;
+  background: transparent;
+  transition: background 350ms ease, box-shadow 350ms ease, padding 350ms ease, gap 350ms ease;
+}
+
+.sf-contact {
+  white-space: nowrap;
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 700;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 0.35s, opacity 0.35s;
+}
+.sf-contact a { color: inherit; text-decoration: none; }
+
+.sf-contact-btn {
+  opacity: 0;
+  pointer-events: none;
+  width: 100%;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.35s ease, max-height 0.35s ease;
+  border: 1px solid var(--black);
+}
+.sf-contact-btn a {
+  display: block;
+  position: relative;
+  background: var(--white);
+  color: var(--black);
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-family: var(--font);
+  font-size: 19px;
+  font-weight: 550;
+  padding: 1rem 7rem 1rem 1rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.sf-contact-btn a::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  height: 1px;
+  width: 60px;
+  background: var(--black);
+}
+.sf-contact-btn a:hover { background: var(--white); color: var(--black); }
+
+/* Scrolled state – phone + contact btn revealed, no black bg on burger */
+@media (min-width: 901px) {
+  .sf.nav-is-down .sf-top-row {
+    background: var(--black);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    padding: 1rem 1rem 1rem 2.2rem;
+    gap: 1.2rem;
+  }
+}
+.sf.nav-is-down .sf-contact { max-width: 220px; opacity: 1; }
+.sf.nav-is-down .sf-contact-btn { opacity: 1; pointer-events: auto; max-height: 80px; }
+
+/* Hide phone + contact-btn while menu is open */
+.sf.nav-open-active .sf-contact,
+.sf.nav-open-active .sf-contact-btn { pointer-events: none; opacity: 0 !important; }
+
+/* Burger icon — single span + ::before/::after (matches reference CSS) */
+.sf-burger {
+  cursor: pointer;
+  width: 30px;
+  height: 25px;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+.sf-burger span {
+  display: block;
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 30px; height: 2px;
+  margin-left: -15px;
+  background-color: var(--white);
+  transition: background-color 0.25s, transform 0.25s;
+}
+.sf-burger span::before,
+.sf-burger span::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 30px; height: 2px;
+  background-color: var(--white);
+  transition: background-color 0.25s, transform 0.25s;
+}
+.sf-burger span::before { top: -9px; }
+.sf-burger span::after  { top:  9px; }
+
+/* Open state → X */
+.sf-burger.open span                   { background-color: transparent !important; }
+.sf-burger.open span::before          { transform: translateY(9px) rotate(45deg); }
+.sf-burger.open span::after           { transform: translateY(-9px) rotate(-45deg); }
+
+/* =====================
+   FULL-SCREEN NAV (matches reference exactly)
+===================== */
+header.site-header {
+  position: fixed;
+  inset: 0;
+  z-index: 350;
+  pointer-events: none; /* nav inside re-enables pointer-events when display:block */
+}
+header.site-header nav {
+  width: 100%; height: 100vh;
+  display: none;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: all;
+}
+
+.nav-row {
+  width: 100%; height: 100%;
+  display: flex;
+}
+
+/* LEFT PANEL — white, industries grid */
+.nav-industries {
+  background: var(--white);
+  flex: 1;
+  max-height: 100vh;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  position: relative;
+}
+.nav-industries::-webkit-scrollbar { display: none; }
+
+.nav-industries-header {
+  text-align: left;
+  padding: 3rem;
+}
+.nav-industries-header h2 {
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 2rem;
+  font-size: 50px;
+  font-weight: 700;
+}
+.nav-industries-header p {
+  color: #555;
+  max-width: 400px;
+  margin-bottom: 1.5rem;
+  font-size: 18px;
+}
+
+.nav-industries-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 3rem 3rem;
+}
+.nav-industries-grid figure {
+  cursor: pointer;
+  height: 220px;
+  margin: 0; padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.nav-industries-grid figure img {
+  object-fit: cover;
+  width: 100%; height: 100%;
+  display: block;
+}
+.nav-industries-grid figure::after {
+  content: '';
+  background: rgba(0,0,0,0.3);
+  position: absolute;
+  inset: 0;
+}
+.nav-industries-grid figure figcaption {
+  color: var(--white);
+  z-index: 2;
+  position: absolute;
+  bottom: 12px; left: 30px;
+}
+.nav-industries-grid figure figcaption h3 {
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+.nav-industries-grid figure figcaption h3 a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* RIGHT PANEL — black, nav links */
+.nav-list {
+  background: var(--black);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  width: 25%;
+  min-width: 280px;
+  height: 100vh;
+  padding: 10rem 2rem 4rem 4rem;
+  position: relative;
+  overflow-y: auto;
+}
+
+.nav-close {
+  position: absolute;
+  top: 1.8rem; right: 1.8rem;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 10;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+.nav-close:hover { opacity: 0.7; }
+
+.nav-primary {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex;
+  flex-flow: column wrap;
+}
+.nav-primary li a {
+  color: var(--white);
+  letter-spacing: -0.45px;
+  text-transform: uppercase;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: normal;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-primary li a:hover,
+.nav-primary li.active a { color: var(--teal); }
+
+.nav-secondary { padding-bottom: 4rem; }
+.nav-secondary ul { list-style: none; margin: 0; padding: 0; }
+.nav-secondary ul li {
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.27px;
+}
+.nav-secondary ul li a { color: inherit; text-decoration: none; transition: opacity 0.2s; }
+.nav-secondary ul li a:hover { opacity: 0.7; }
+
+.nav-footer { padding-top: 4rem; }
+.nav-footer ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap;
+}
+.nav-footer ul li {
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.27px;
+  margin-right: 2rem;
+  display: inline-block;
+}
+.nav-footer ul li:last-child { margin-left: auto; margin-right: 0; }
+.nav-footer ul li a { color: inherit; text-decoration: none; transition: opacity 0.2s; }
+.nav-footer ul li a:hover { opacity: 0.7; }
+
+/* =====================
+   S1 HERO
+===================== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.hero-carousel {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+}
+.hero-carousel-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.hero-carousel-slide.active {
+  opacity: 1;
+}
+.hero-carousel-slide img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.hero-dots {
+  position: absolute;
+  bottom: 28px;
+  right: 64px;
+  z-index: 4;
+  display: flex;
+  gap: 8px;
+}
+.hero-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s;
+}
+.hero-dot.active { background: #fff; }
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.08);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  padding: 0 64px 100px;
+  max-width: 960px;
+}
+
+.hero-eyebrow {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.27px;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 20px;
+  display: block;
+}
+
+.hero-h1 {
+  font-size: clamp(58px, 8vw, 100px);
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  text-transform: uppercase;
+  line-height: 0.95;
+  color: var(--white);
+  margin-bottom: 32px;
+}
+
+.hero-sub {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.27px;
+  color: var(--white);
+  max-width: 620px;
+  line-height: 1.5;
+}
+
+.hero-chevron {
+  position: absolute;
+  bottom: 40px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font-size: 32px;
+  color: var(--white);
+  animation: bounce 2s ease-in-out infinite;
+  cursor: pointer;
+  text-decoration: none;
+}
+@keyframes bounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%     { transform: translateX(-50%) translateY(10px); }
+}
+
+/* =====================
+   S2 PROBLEM (50/50)
+===================== */
+.section-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 640px;
+}
+
+.split-text {
+  background: var(--white);
+  padding: 100px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.split-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.split-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+.split-image.contain img {
+  object-fit: contain;
+  background: var(--off-white);
+}
+
+.split-image-caption {
+  position: absolute;
+  bottom: 20px; right: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--white);
+  z-index: 2;
+}
+
+.section-eyebrow {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.27px;
+  text-transform: uppercase;
+  color: var(--mid-grey);
+  margin-bottom: 20px;
+  display: block;
+}
+
+.section-h2 {
+  font-size: clamp(46px, 5.5vw, 80px);
+  font-weight: 700;
+  letter-spacing: -1.28px;
+  text-transform: uppercase;
+  line-height: 0.95;
+  margin-bottom: 32px;
+}
+
+.section-body {
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.27px;
+  line-height: 1.7;
+  color: var(--near-black);
+}
+.section-body + .section-body { margin-top: 16px; }
+
+/* Reverse split */
+.section-split.reverse .split-text { order: 2; }
+.section-split.reverse .split-image { order: 1; }
+
+/* =====================
+   S3 METHOD (3-panel showcase)
+===================== */
+.section-method {
+  background: var(--off-white);
+  padding: 100px 64px;
+}
+
+.method-header {
+  margin-bottom: 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.method-header .section-body { margin-top: 24px; max-width: 560px; }
+.method-header-video {
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  border-radius: 4px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.method-header-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.method-panels {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr 60px 1fr;
+  align-items: center;
+}
+
+.method-panel { position: relative; overflow: hidden; }
+
+.method-panel img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.panel-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.panel-arrow-line { width: 1px; height: 36px; background: var(--light-grey); }
+.panel-arrow-sym { font-size: 28px; color: var(--near-black); line-height: 1; font-weight: 300; }
+
+.panel-badge {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.72);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-badge.teal { background: var(--teal); }
+
+.method-descriptions {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr 60px 1fr;
+  margin-top: 32px;
+}
+
+.method-desc p {
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.27px;
+  line-height: 1.6;
+  color: var(--near-black);
+}
+
+/* =====================
+   S4 BENEFITS (3-col)
+===================== */
+.section-benefits {
+  background: var(--light-grey);
+  padding: 100px 0;
+}
+
+.benefits-header { padding: 0 64px; margin-bottom: 56px; }
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.benefit-card {
+  background: var(--white);
+  border-left: 1px solid var(--light-grey);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.benefit-card:first-child { border-left: none; }
+
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--black);
+  z-index: 2;
+}
+.benefit-card:nth-child(2)::before { background: var(--teal); }
+
+.benefit-card-img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.benefit-card-body {
+  padding: 48px 40px;
+  flex-grow: 1;
+}
+
+.benefit-num {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mid-grey);
+  display: block;
+  margin-bottom: 20px;
+}
+
+.benefit-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.42px;
+  text-transform: uppercase;
+  line-height: 1.05;
+  margin-bottom: 18px;
+  color: var(--black);
+}
+
+.benefit-body {
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.27px;
+  line-height: 1.7;
+  color: var(--near-black);
+}
+
+/* =====================
+   S5 GALLERY
+===================== */
+.section-gallery {
+  background: var(--white);
+  padding: 100px 0;
+}
+
+.gallery-header {
+  padding: 0 64px;
+  margin-bottom: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.gallery-caption-text {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.27px;
+  font-style: italic;
+  color: var(--mid-grey);
+  max-width: 420px;
+  text-align: right;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+}
+
+.gi { overflow: hidden; position: relative; }
+
+.gi-inner {
+  aspect-ratio: 3/2;
+  position: relative;
+  overflow: hidden;
+}
+
+.gi-inner img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.gi:hover .gi-inner img { transform: scale(1.04); }
+
+.gi-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.72);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.27px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.gi:hover .gi-overlay { opacity: 1; }
+
+.gi-tag {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 28px 14px 12px;
+}
+
+/* =====================
+   SECTOR STRIP
+===================== */
+.sector-strip {
+  background: var(--off-white);
+  padding: 60px 64px;
+  border-top: 1px solid var(--light-grey);
+  border-bottom: 1px solid var(--light-grey);
+}
+
+.sector-strip-label {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.27px;
+  text-transform: uppercase;
+  color: var(--mid-grey);
+  margin-bottom: 24px;
+  display: block;
+}
+
+.sector-links { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.sector-link {
+  display: inline-block;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--black);
+  text-decoration: none;
+  padding: 12px 22px;
+  border: 1px solid var(--near-black);
+  background: var(--white);
+  transition: all 0.18s;
+}
+.sector-link:hover { background: var(--black); color: var(--white); }
+
+/* =====================
+   INVESTMENT
+===================== */
+.section-investment {
+  background: var(--white);
+  padding: 100px 64px;
+  border-bottom: 1px solid var(--light-grey);
+}
+
+.investment-header { margin-bottom: 56px; max-width: 720px; }
+
+.investment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--light-grey);
+}
+
+.investment-tile {
+  padding: 48px 40px 48px 0;
+  border-right: 1px solid var(--light-grey);
+}
+.investment-tile:last-child { border-right: none; padding-left: 40px; padding-right: 0; }
+
+.inv-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.inv-price {
+  font-size: clamp(40px, 4vw, 56px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 16px;
+  color: var(--black);
+}
+
+.inv-body {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.27px;
+  line-height: 1.6;
+  color: var(--near-black);
+}
+
+.investment-note {
+  margin-top: 36px;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+  font-style: italic;
+  color: var(--mid-grey);
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+/* =====================
+   S7 CTA
+===================== */
+.section-cta {
+  background: var(--black);
+  padding: 120px 64px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-eyebrow {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.27px;
+  text-transform: uppercase; color: var(--mid-grey);
+  display: block; margin-bottom: 24px;
+}
+
+.cta-h2 {
+  font-size: clamp(48px, 7vw, 90px);
+  font-weight: 700; letter-spacing: -1.35px;
+  text-transform: uppercase; line-height: 0.95;
+  color: var(--white); margin-bottom: 24px;
+}
+
+.cta-sub {
+  font-size: 20px; font-weight: 400; letter-spacing: -0.27px;
+  color: rgba(255,255,255,0.55); margin-bottom: 52px;
+  max-width: 520px; margin-left: auto; margin-right: auto;
+  line-height: 1.5;
+}
+
+.cta-btn {
+  display: inline-block;
+  font-family: var(--font);
+  font-size: 20px; font-weight: 700; letter-spacing: -0.27px;
+  text-transform: uppercase; color: var(--white);
+  text-decoration: none; border: 1px solid var(--white);
+  padding: 18px 48px;
+  transition: background 0.2s, color 0.2s;
+}
+.cta-btn:hover { background: var(--white); color: var(--black); }
+
+/* =====================
+   FOOTER
+===================== */
+footer {
+  background: #000;
+  padding: 3rem 4% 2rem;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 22% 36% auto auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  column-gap: 2rem;
+}
+
+.footer-col--logo {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-col--gap {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.footer-logo-img {
+  width: 150px;
+  height: 45.05px;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.footer-contact { margin: 3rem 0 0; }
+
+.footer-lets-talk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--black);
+  text-decoration: none;
+  background: var(--white);
+  padding: 20px 28px;
+  width: fit-content;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: -0.2px;
+  font-family: var(--font);
+}
+.footer-lets-talk::after {
+  content: "";
+  width: 60px;
+  flex-shrink: 0;
+  height: 1.5px;
+  background: currentColor;
+}
+.footer-lets-talk:hover { background: var(--teal); color: var(--white); }
+
+.footer-links-large {
+  grid-column: 3;
+  grid-row: 1;
+  list-style: none;
+  margin: 0; padding: 0;
+}
+.footer-links-large li {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 36px;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.footer-links-large li a {
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links-large li a:hover { color: var(--teal); }
+
+.footer-links-small {
+  grid-column: 4;
+  grid-row: 1;
+  list-style: none;
+  margin: 0; padding: 0;
+}
+.footer-links-small li {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--white);
+  line-height: 2;
+}
+.footer-links-small li a {
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links-small li a:hover { color: var(--teal); }
+
+.footer-social-links {
+  grid-column: 3 / 5;
+  grid-row: 2;
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex;
+  gap: 2rem;
+  padding-top: 5rem;
+}
+.footer-social-links li {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--white);
+}
+.footer-social-links li a {
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-social-links li a:hover { color: var(--teal); }
+
+/* =====================
+   SCROLL ANIMATIONS
+===================== */
+.wow {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.wow.visible { opacity: 1; transform: translateY(0); }
+
+body.menu-open { overflow: hidden; }
+
+/* =====================
+   RESPONSIVE
+===================== */
+/* =====================
+   TABLET (≤900px)
+===================== */
+@media (max-width: 900px) {
+  /* Nav */
+  .nav-industries { display: none; }
+  .nav-list { width: 100%; min-width: 0; }
+  .sf-contact,
+  .sf-contact-btn { display: none !important; }
+
+  /* Hero */
+  .hero-content { padding: 0 32px 80px; }
+  .hero-dots { right: 32px; }
+
+  /* Split sections */
+  .section-split { grid-template-columns: 1fr; min-height: auto; }
+  .section-split.reverse .split-text { order: 1; }
+  .section-split.reverse .split-image { order: 2; }
+  .split-text { padding: 64px 32px; }
+  .split-image { min-height: 400px; }
+
+  /* Method */
+  .section-method { padding: 80px 32px; }
+  .method-header { grid-template-columns: 1fr; gap: 32px; }
+  .method-header-video { max-width: 100%; }
+  .method-panels, .method-descriptions { grid-template-columns: 1fr; gap: 12px; }
+  .method-panels .panel-arrow { transform: rotate(90deg); margin: 8px auto; }
+  .method-descriptions { gap: 24px; }
+  .method-descriptions > div:nth-child(2),
+  .method-descriptions > div:nth-child(4) { display: none; }
+
+  /* Benefits */
+  .section-benefits { padding: 80px 0; }
+  .benefits-header { padding: 0 32px; margin-bottom: 40px; }
+  .benefits-grid { grid-template-columns: 1fr; }
+  .benefit-card { border-left: none; border-top: 1px solid var(--light-grey); }
+  .benefit-card:first-child { border-top: none; }
+
+  /* Gallery */
+  .section-gallery { padding: 80px 0; }
+  .gallery-header { padding: 0 32px; flex-direction: column; align-items: flex-start; gap: 24px; margin-bottom: 32px; }
+  .gallery-caption-text { text-align: left; max-width: 100%; }
+
+  /* Sector strip */
+  .sector-strip { padding: 48px 32px; }
+
+  /* Investment */
+  .section-investment { padding: 80px 32px; }
+  .investment-grid { grid-template-columns: 1fr; }
+  .investment-tile { padding: 32px 0; border-right: none; border-bottom: 1px solid var(--light-grey); }
+  .investment-tile:last-child { padding-left: 0; padding-bottom: 0; border-bottom: none; padding-top: 32px; }
+
+  /* CTA */
+  .section-cta { padding: 80px 32px; }
+
+  /* Footer */
+  footer { padding: 48px 32px; }
+  .footer-inner { grid-template-columns: 1fr; row-gap: 40px; }
+  .footer-col--logo { grid-column: 1; grid-row: auto; }
+  .footer-col--gap { display: none; }
+  .footer-links-large { grid-column: 1; grid-row: auto; }
+  .footer-links-small { grid-column: 1; grid-row: auto; }
+  .footer-social-links { grid-column: 1; grid-row: auto; padding-top: 0; }
+}
+
+/* =====================
+   MOBILE (≤480px)
+===================== */
+@media (max-width: 480px) {
+  /* Hero */
+  .hero-content { padding: 0 20px 64px; }
+  .hero-sub { font-size: 18px; }
+  .hero-dots { right: 20px; bottom: 20px; }
+
+  /* Logo bar */
+  .sticky-bar { padding: 0 20px; }
+  .sticky-bar .bi img { width: 120px; height: auto; }
+
+  /* Split sections */
+  .split-text { padding: 48px 20px; }
+  .split-image { min-height: 280px; }
+
+  /* Method */
+  .section-method { padding: 60px 20px; }
+  .method-panels { gap: 8px; }
+
+  /* Benefits */
+  .section-benefits { padding: 60px 0; }
+  .benefits-header { padding: 0 20px; }
+  .benefit-card-body { padding: 32px 20px; }
+
+  /* Gallery */
+  .section-gallery { padding: 60px 0; }
+  .gallery-header { padding: 0 20px; }
+  .gallery-grid { grid-template-columns: 1fr; }
+
+  /* Sector strip */
+  .sector-strip { padding: 40px 20px; }
+  .sector-links { gap: 6px; }
+  .sector-link { font-size: 14px; padding: 10px 16px; }
+
+  /* Investment */
+  .section-investment { padding: 60px 20px; }
+
+  /* CTA */
+  .section-cta { padding: 60px 20px; }
+  .cta-btn { padding: 16px 32px; font-size: 18px; }
+
+  /* Footer */
+  footer { padding: 40px 20px; }
+  .footer-links-large li { font-size: 24px; line-height: 32px; }
+  .footer-lets-talk { font-size: 16px; padding: 16px 20px; gap: 20px; }
+  .footer-lets-talk::after { width: 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SF TOP NAV -->
+<div class="sf" id="sfNav">
+  <div class="sf-top-row">
+    <div class="sf-contact"><a href="tel:01613021580">0161 302 1580</a></div>
+    <div class="sf-burger" id="sfBurger" role="button" aria-label="Open menu"><span></span></div>
+  </div>
+  <div class="sf-contact-btn"><a href="https://www.imagefoundry.co.uk/contact-us/">Contact Us</a></div>
+</div>
+
+<!-- FULL-SCREEN NAV -->
+<header class="site-header">
+  <nav id="siteNav">
+    <div class="nav-row">
+
+      <!-- Left: industries grid -->
+      <div class="nav-industries">
+        <div class="nav-industries-header">
+          <h2>Industries</h2>
+          <p>Explore the industries Image Foundry are transforming.</p>
+        </div>
+        <div class="nav-industries-grid">
+          <figure>
+            <img src="https://www.imagefoundry.co.uk/lp/images/industry/interiors-living-room.webp" alt="Interiors">
+            <figcaption><h3><a href="https://www.imagefoundry.co.uk/industry/interiors/">Interiors</a></h3></figcaption>
+          </figure>
+          <figure>
+            <img src="https://www.imagefoundry.co.uk/lp/images/industry/bathroom-basin.webp" alt="Bathrooms">
+            <figcaption><h3><a href="https://www.imagefoundry.co.uk/industry/bathrooms/">Bathrooms</a></h3></figcaption>
+          </figure>
+          <figure>
+            <img src="https://www.imagefoundry.co.uk/lp/images/industry/product-shot.webp" alt="Products">
+            <figcaption><h3><a href="https://www.imagefoundry.co.uk/industry/product/">Products</a></h3></figcaption>
+          </figure>
+          <figure>
+            <img src="https://www.imagefoundry.co.uk/lp/images/industry/kitchen-interior.webp" alt="Kitchens">
+            <figcaption><h3><a href="https://www.imagefoundry.co.uk/industry/kitchen/">Kitchens</a></h3></figcaption>
+          </figure>
+          <figure>
+            <img src="https://www.imagefoundry.co.uk/lp/images/industry/bedroom-interior.webp" alt="Bedrooms">
+            <figcaption><h3><a href="https://www.imagefoundry.co.uk/industry/bedrooms/">Bedrooms</a></h3></figcaption>
+          </figure>
+          <figure>
+            <img src="https://www.imagefoundry.co.uk/lp/images/industry/property-exterior.webp" alt="Property">
+            <figcaption><h3><a href="https://www.imagefoundry.co.uk/industry/property/">Property</a></h3></figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Right: nav links -->
+      <div class="nav-list">
+        <button class="nav-close" id="navClose" aria-label="Close menu">&#10005;</button>
+        <ul class="nav-primary">
+          <li><a href="https://www.imagefoundry.co.uk/about-us/">About</a></li>
+          <li class="active"><a href="https://www.imagefoundry.co.uk/your-industry/">Your Industry</a></li>
+          <li><a href="https://www.imagefoundry.co.uk/case-studies/">Case Studies</a></li>
+          <li><a href="https://www.imagefoundry.co.uk/insights/">Insights</a></li>
+          <li><a href="https://www.imagefoundry.co.uk/process/">Our Process</a></li>
+          <li><a href="https://www.imagefoundry.co.uk/contact-us/">Contact Us</a></li>
+        </ul>
+        <div class="nav-secondary">
+          <ul><li><a href="https://www.imagefoundry.co.uk/privacy-policy/privacy-policy/">Privacy policy</a></li></ul>
+        </div>
+        <div class="nav-footer">
+          <ul>
+            <li><a href="https://www.instagram.com/imagefoundrystudios/" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://www.linkedin.com/company/image-foundry-studios/" target="_blank" rel="noopener">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+</header>
+
+
+<!-- S1 HERO -->
+<section class="hero" id="top">
+
+  <!-- Logo — stays in hero, scrolls away with it -->
+  <div class="site-header-bar">
+    <div class="sticky-bar">
+      <div class="bi">
+        <a href="https://www.imagefoundry.co.uk/">
+          <img src="https://www.imagefoundry.co.uk/lp/images/logos/if-logo.svg" alt="Image Foundry">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-carousel" id="heroCarousel">
+    <div class="hero-carousel-slide active"><img src="images/26_Corda 800x800 Porcelain Paving_Hero.webp" alt="Corda porcelain paving"></div>
+    <div class="hero-carousel-slide"><img src="images/18_Grey Yorkstone Porcelain Paving_Hero.webp" alt="Grey Yorkstone porcelain paving"></div>
+    <div class="hero-carousel-slide"><img src="images/30_Brera 800x800 Porcelain Paving_Hero.webp" alt="Brera porcelain paving"></div>
+    <div class="hero-carousel-slide"><img src="images/9_Heritage Grey Porcelain Paving_Hero.webp" alt="Heritage Grey porcelain paving"></div>
+    <div class="hero-carousel-slide"><img src="images/15_Mint Porcelain Paving_Hero.webp" alt="Mint porcelain paving"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-dots" id="heroDots"></div>
+
+  <div class="hero-content">
+    <span class="hero-eyebrow">Image Foundry &nbsp;&middot;&nbsp; Surfaces &amp; Flooring</span>
+    <h1 class="hero-h1">
+      REAL PRODUCT.<br>
+      <span class="outline-white">AI ENVIRONMENTS.</span>
+    </h1>
+    <p class="hero-sub">
+      Photoreal imagery for paving, decking and surface brands. Without the shoots, the showrooms or the supply chain headaches.
+    </p>
+  </div>
+
+  <a class="hero-chevron" href="#problem">&#8964;</a>
+</section>
+
+
+<!-- S2 PROBLEM (50/50) -->
+<section class="section-split" id="problem">
+  <div class="split-text wow">
+    <span class="section-eyebrow">The problem</span>
+    <h2 class="section-h2">
+      FLOORING IS A<br>
+      <span class="outline">NIGHTMARE</span><br>
+      TO SHOOT.
+    </h2>
+    <p class="section-body">
+      Paving, decking, tiles, planks, setts. Whatever the surface, the same problems show up. Weather rebooks shoots. Installation shots fix every choice forever. Every new SKU needs new imagery. Showrooms flatten the product, never showing it where buyers will actually use it.
+    </p>
+    <p class="section-body">
+      Then there's the channel problem. Distributors all need imagery. They either ask you for it or make their own. Either way your brand fragments across the network and price competition follows.
+    </p>
+  </div>
+  <div class="split-image contain">
+    <img src="images/129_LDN002_ClassicPolar_Lifestyle1.webp" alt="Classic Polar decking in a styled outdoor setting by Image Foundry">
+    <div class="split-image-caption">Image Foundry &middot; Surfaces</div>
+  </div>
+</section>
+
+
+<!-- S3 METHOD (3-panel showcase) -->
+<section class="section-method">
+  <div class="method-header wow">
+    <div class="method-header-text">
+      <span class="section-eyebrow">How we work</span>
+      <h2 class="section-h2">
+        WE START WITH<br>
+        YOUR <span class="outline">PRODUCT.</span><br>
+        EVERYTHING ELSE<br>
+        IS BUILT TO FIT.
+      </h2>
+      <p class="section-body">
+        Send us your real product imagery. The actual paver, plank or tile. We extend it into a believable expanse using AI, then layer in surroundings, planting, furniture, lighting, even people. The product stays exactly as you supplied it. Everything around it is built to your brief.
+      </p>
+    </div>
+    <div class="method-header-video">
+      <video autoplay muted loop playsinline>
+        <source src="images/Comp 1_15.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+  <div class="method-panels wow">
+    <div class="method-panel">
+      <img src="images/6_Slab Khaki Porcelain Paving_Lifestyle 1.webp" alt="Slab Khaki porcelain paving, product reference">
+      <div class="panel-badge">
+        <span>01 &middot; Real product</span>
+        <span>&rarr;</span>
+      </div>
+    </div>
+    <div class="panel-arrow">
+      <div class="panel-arrow-line"></div>
+      <div class="panel-arrow-sym">&darr;</div>
+      <div class="panel-arrow-line"></div>
+    </div>
+    <div class="method-panel">
+      <img src="images/4_Florence Dark Porcelain Paving_Lifestyle 1.webp" alt="Florence Dark porcelain paving extended across an outdoor terrace">
+      <div class="panel-badge teal">
+        <span>02 &middot; AI expanse</span>
+        <span>&rarr;</span>
+      </div>
+    </div>
+    <div class="panel-arrow">
+      <div class="panel-arrow-line"></div>
+      <div class="panel-arrow-sym">&darr;</div>
+      <div class="panel-arrow-line"></div>
+    </div>
+    <div class="method-panel">
+      <img src="images/140_LDN002_WarmTeakGrooved_Hero.webp" alt="Warm Teak Grooved decking in a fully styled outdoor lifestyle scene">
+      <div class="panel-badge">
+        <span>03 &middot; Context built in</span>
+        <span>&rarr;</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="method-descriptions wow">
+    <div class="method-desc">
+      <p>Your reference stays 1:1. Texture, colour, format, joint pattern, all preserved. No reinterpretation.</p>
+    </div>
+    <div></div>
+    <div class="method-desc">
+      <p>Driveway, patio, terrace, pool surround, roof garden. As large as the brief calls for.</p>
+    </div>
+    <div></div>
+    <div class="method-desc">
+      <p>Architecture, planting, garden furniture, weather, season, time of day. All controllable. All realistic.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- S4 BENEFITS (3-col) -->
+<section class="section-benefits">
+  <div class="benefits-header wow">
+    <span class="section-eyebrow">What this means for you</span>
+    <h2 class="section-h2">
+      THREE THINGS<br>
+      THAT <span class="outline">CHANGE</span> WHEN<br>
+      YOU WORK THIS WAY.
+    </h2>
+  </div>
+
+  <div class="benefits-grid">
+    <div class="benefit-card wow">
+      <img class="benefit-card-img" src="images/138_LDN002_PebbleGreyGrooved_Lifestyle1.webp" alt="Pebble Grey Grooved decking lifestyle scene">
+      <div class="benefit-card-body">
+        <span class="benefit-num">01</span>
+        <h3 class="benefit-title">Cover your full range.</h3>
+        <p class="benefit-body">Every product, every finish, every variant. Imagery that scales with your range, not against your budget. The SKUs left out of the catalogue because the cost per shot was too high can finally all be shown.</p>
+      </div>
+    </div>
+    <div class="benefit-card wow">
+      <img class="benefit-card-img" src="images/113_CLAY PAVERS- LIFESTYLE-Antique Brown Clay Pavers.webp" alt="Antique Brown clay pavers lifestyle scene">
+      <div class="benefit-card-body">
+        <span class="benefit-num">02</span>
+        <h3 class="benefit-title">A fraction of the cost.</h3>
+        <p class="benefit-body">Photoreal results without a full CGI budget. Hero scenes from &pound;300. Volume libraries from &pound;100 per asset. Your cost per image drops sharply. The quality holds.</p>
+      </div>
+    </div>
+    <div class="benefit-card wow">
+      <img class="benefit-card-img" src="images/113_CLAY PAVERS- LIFESTYLE-Antique Brown Clay Pavers_v2.webp" alt="Antique Brown clay pavers alternate lifestyle scene">
+      <div class="benefit-card-body">
+        <span class="benefit-num">03</span>
+        <h3 class="benefit-title">Weeks, not months.</h3>
+        <p class="benefit-body">No weather delays. No install schedules. No location scouts. New ranges get imaged quickly. Seasonal updates are straightforward. Launches stop waiting on photography.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- S5 GALLERY -->
+<section class="section-gallery">
+  <div class="gallery-header wow">
+    <div>
+      <span class="section-eyebrow">The work</span>
+      <h2 class="section-h2">SURFACES<br>IN <span class="outline">CONTEXT.</span></h2>
+    </div>
+    <p class="gallery-caption-text">Live work for a premium UK stone supplier. Every scene built around real product references, every environment generated to fit.</p>
+  </div>
+
+  <div class="gallery-grid">
+    <div class="gi">
+      <div class="gi-inner">
+        <img src="images/111_CLAY PAVERS- HERO-Antique Brown Clay Pavers.webp" alt="Antique Brown clay pavers hero scene">
+        <div class="gi-tag">Clay Pavers</div>
+        <div class="gi-overlay"><span>See more</span><span>&rarr;</span></div>
+      </div>
+    </div>
+    <div class="gi">
+      <div class="gi-inner">
+        <img src="images/Golden Buff Clay Pavers.webp" alt="Golden Buff clay pavers in context">
+        <div class="gi-tag">Clay Pavers</div>
+        <div class="gi-overlay"><span>See more</span><span>&rarr;</span></div>
+      </div>
+    </div>
+    <div class="gi gi-wide">
+      <div class="gi-inner">
+        <img src="images/97_CLAY PAVERS- LIFESTYLE-Abbey Dark Multi Clay Pavers.webp" alt="Abbey Dark Multi clay pavers in styled outdoor setting">
+        <div class="gi-tag">Clay Pavers</div>
+        <div class="gi-overlay"><span>See more</span><span>&rarr;</span></div>
+      </div>
+    </div>
+    <div class="gi">
+      <div class="gi-inner">
+        <img src="images/123 Agata Antica Clay Pavers Hero 2.webp" alt="Agata Antica clay pavers hero scene">
+        <div class="gi-tag">Porcelain Paving</div>
+        <div class="gi-overlay"><span>See more</span><span>&rarr;</span></div>
+      </div>
+    </div>
+    <div class="gi">
+      <div class="gi-inner">
+        <img src="images/Charcoal Grey Clay Pavers.webp" alt="Charcoal Grey clay pavers in context">
+        <div class="gi-tag">Clay Pavers</div>
+        <div class="gi-overlay"><span>See more</span><span>&rarr;</span></div>
+      </div>
+    </div>
+    <div class="gi gi-wide">
+      <div class="gi-inner">
+        <img src="images/130_LDN002_DarkAshBrushed_Hero.webp" alt="Dark Ash Brushed decking hero scene">
+        <div class="gi-tag">Timber Decking</div>
+        <div class="gi-overlay"><span>See more</span><span>&rarr;</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- S6 CHANNEL CONTROL (50/50 reverse) -->
+<section class="section-split reverse">
+  <div class="split-text wow">
+    <span class="section-eyebrow">One brand. Every channel.</span>
+    <h2 class="section-h2">
+      ONE LOOK.<br>
+      EVERY<br>
+      <span class="outline">DISTRIBUTOR.</span>
+    </h2>
+    <p class="section-body">
+      If you sell through a network you already know the problem. Distributors all need imagery. They use what you give them or they make their own. Your brand fragments across the network. Price pressure follows close behind.
+    </p>
+    <p class="section-body">
+      We produce volume libraries you can hand to every channel partner. Same product, same look, same standard across every site. Distributors get content that sells. You keep brand control. The product holds its value across the network.
+    </p>
+  </div>
+  <div class="split-image">
+    <img src="images/125_CLAY PAVERS- LIFESTYLE-Agata Antica Clay Pavers.webp" alt="Agata Antica clay pavers, consistent imagery for distributor channels">
+    <div class="split-image-caption">Image Foundry &middot; Channel</div>
+  </div>
+</section>
+
+
+<!-- SECTOR STRIP -->
+<div class="sector-strip">
+  <span class="sector-strip-label">Surfaces we work with</span>
+  <div class="sector-links">
+    <a href="#" class="sector-link">Natural Stone &amp; Porcelain</a>
+    <a href="#" class="sector-link">Clay Pavers</a>
+    <a href="#" class="sector-link">Timber Decking</a>
+    <a href="#" class="sector-link">Composite Decking</a>
+    <a href="#" class="sector-link">Indoor Tile</a>
+    <a href="#" class="sector-link">Outdoor Tile</a>
+    <a href="#" class="sector-link">Resin &amp; Concrete</a>
+    <a href="#" class="sector-link">Setts &amp; Gravel</a>
+  </div>
+</div>
+
+
+<!-- INVESTMENT -->
+<section class="section-investment">
+  <div class="investment-header wow">
+    <span class="section-eyebrow">Investment</span>
+    <h2 class="section-h2">
+      PRICED<br>
+      TO <span class="outline">SCALE.</span>
+    </h2>
+  </div>
+
+  <div class="investment-grid">
+    <div class="investment-tile wow">
+      <span class="inv-label">Hero scenes</span>
+      <div class="inv-price">From &pound;300</div>
+      <p class="inv-body">Single statement assets. Full creative control over scene, lighting, styling and props. Photoreal environments built around your product reference.</p>
+    </div>
+    <div class="investment-tile wow">
+      <span class="inv-label">Volume libraries</span>
+      <div class="inv-price">From &pound;100 / asset</div>
+      <p class="inv-body">Batch production for e-commerce, distributor packs, range rollouts and seasonal refreshes. Consistent visual standard across every image.</p>
+    </div>
+  </div>
+
+  <p class="investment-note">Pricing depends on complexity, volume and turnaround. We'll quote against your range once we've seen the products.</p>
+</section>
+
+
+<!-- S7 CTA -->
+<section class="section-cta">
+  <span class="cta-eyebrow">Get in touch</span>
+  <h2 class="cta-h2">
+    WANT TO SEE<br>
+    YOUR <span class="outline-white">RANGE</span><br>
+    LIKE THIS?
+  </h2>
+  <p class="cta-sub">Send us a few product references. We'll show you what's possible.</p>
+  <a href="https://www.imagefoundry.co.uk/contact-us/" class="cta-btn">Tell us about your project</a>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+
+    <!-- Logo + Let's talk -->
+    <div class="footer-col--logo">
+      <img src="https://www.imagefoundry.co.uk/lp/images/logos/if-logo.svg" alt="Image Foundry" class="footer-logo-img">
+      <div class="footer-contact">
+        <a href="https://www.imagefoundry.co.uk/contact-us/" class="footer-lets-talk">Let's talk</a>
+      </div>
+    </div>
+
+    <!-- Spacer -->
+    <div class="footer-col--gap"></div>
+
+    <!-- Nav links -->
+    <ul class="footer-links-large">
+      <li><a href="https://www.imagefoundry.co.uk/about-us/">WHO WE ARE</a></li>
+      <li><a href="https://www.imagefoundry.co.uk/insights/">INSIGHTS</a></li>
+      <li><a href="https://www.imagefoundry.co.uk/process/">OUR PROCESS</a></li>
+      <li><a href="https://www.imagefoundry.co.uk/contact-us/">CONTACT US</a></li>
+    </ul>
+
+    <!-- Legal -->
+    <ul class="footer-links-small">
+      <li><a href="https://www.imagefoundry.co.uk/privacy-policy/privacy-policy/">Privacy</a></li>
+      <li><a href="#">Cookies</a></li>
+    </ul>
+
+    <!-- Social -->
+    <ul class="footer-social-links">
+      <li><a href="https://www.instagram.com/imagefoundrystudios/" target="_blank" rel="noopener">Instagram</a></li>
+      <li><a href="https://www.linkedin.com/company/image-foundry-studios/" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
+
+  </div>
+</footer>
+
+<script>
+  /* ---- Scroll-reveal ---- */
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.wow').forEach(el => revealObserver.observe(el));
+
+  /* ---- Scroll: show black pill on scroll ---- */
+  const sfNav = document.getElementById('sfNav');
+
+  function onScroll() {
+    sfNav.classList.toggle('nav-is-down', window.scrollY > 60);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // run once on load
+
+  /* ---- Menu toggle — exact match to page.tsx menuToggle/menuClose ---- */
+  const sf     = document.querySelector('.sf');
+  const header = document.querySelector('.site-header');
+  const burger = document.querySelector('.sf-burger');
+  const nav    = document.querySelector('.site-header nav');
+
+  function menuToggle() {
+    const isOpen = sf.classList.contains('nav-open-active');
+    if (isOpen) {
+      menuClose();
+    } else {
+      sf.classList.add('nav-open-active');
+      burger.style.display = 'none';
+      nav.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function menuClose() {
+    sf.classList.remove('nav-open-active');
+    burger.style.display = '';
+    nav.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  burger.addEventListener('click', menuToggle);
+
+  /* Wire close button and all nav links */
+  document.querySelectorAll('.nav-close, .nav-primary a, .nav-industries-grid a').forEach(el => {
+    el.addEventListener('click', menuClose);
+  });
+
+  document.addEventListener('keyup', e => {
+    if (e.key === 'Escape') menuClose();
+  });
+
+  /* Re-wire on bfcache restore */
+  window.addEventListener('pageshow', e => {
+    if (e.persisted) menuClose();
+  });
+</script>
+
+<script>
+  (function() {
+    const slides = document.querySelectorAll('#heroCarousel .hero-carousel-slide');
+    const dotsContainer = document.getElementById('heroDots');
+    let current = 0;
+
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+      dot.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(dot);
+    });
+
+    function goTo(n) {
+      slides[current].classList.remove('active');
+      dotsContainer.children[current].classList.remove('active');
+      current = n;
+      slides[current].classList.add('active');
+      dotsContainer.children[current].classList.add('active');
+    }
+
+    setInterval(() => goTo((current + 1) % slides.length), 4000);
+  })();
+</script>
+
+</body>
+</html>
