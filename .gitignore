@@ -1,2 +1,5 @@
 .vercel/
 .DS_Store
+assets/*.docx
+assets/*.md
+assets/*.txt
