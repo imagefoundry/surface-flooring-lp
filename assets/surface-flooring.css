@@ -216,7 +216,7 @@
 }
 
 /* ── BENEFITS ── */
-.section-benefits { background: #DBDBDB; padding: 100px 0; }
+.section-benefits { background: #DBDBDB; padding: 100px 0 0; }
 .benefits-header { padding: 0 64px; margin-bottom: 56px; }
 .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
 .benefit-card {
