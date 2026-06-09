@@ -183,7 +183,7 @@
   grid-template-columns: 1fr 32px 1fr 32px 1fr 32px 1fr;
   align-items: center;
 }
-.method-panel { position: relative; overflow: hidden; }
+.method-panel { position: relative; }
 .method-panel img {
   width: 100%; aspect-ratio: 4/3;
   object-fit: cover; object-position: center top; display: block;
@@ -195,24 +195,22 @@
 .panel-arrow-line { width: 1px; height: 36px; background: #DBDBDB; }
 .panel-arrow-sym { font-size: 28px; color: #212529; line-height: 1; font-weight: 300; }
 .panel-badge {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,0.72);
-  color: #fff;
-  font-size: 14px; font-weight: 700;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 12px 18px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: block;
+  font-size: 16px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: #212529; padding: 10px 0 0;
 }
-.panel-badge.teal { background: #2A657D; }
+.panel-badge span:last-child { display: none; }
+.panel-badge.teal { color: #212529; }
 .method-descriptions {
   display: grid;
   grid-template-columns: 1fr 32px 1fr 32px 1fr 32px 1fr;
-  margin-top: 32px;
+  margin-top: 8px;
 }
 .method-desc p {
   font-size: 16px; font-weight: 400;
   letter-spacing: -0.27px; line-height: 1.6; color: #212529;
+  margin: 0;
 }
 
 /* ── BENEFITS ── */
