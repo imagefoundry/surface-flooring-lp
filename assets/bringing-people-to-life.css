@@ -82,7 +82,7 @@ body.nav-open .sf-burger span::after  { top: 0; transform: rotate(-45deg); }
   position: absolute; top: 0; left: 0; right: 0; z-index: 200;
   display: flex; align-items: center;
   padding: 49px 0 2rem;
-  padding-left: calc(var(--pad) + 1rem);
+  padding-left: 64px;
 }
 .site-header .bi img { width: 150px; filter: brightness(0) invert(1); }
 
